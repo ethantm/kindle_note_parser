@@ -6,3 +6,7 @@ abstract class SettingsEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class SettingsInit extends SettingsEvent {}
+
+class SettingsSyncNotes extends SettingsEvent {}
