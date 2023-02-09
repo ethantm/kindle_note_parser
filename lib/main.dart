@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:kindle_note_parser/notes/notes.dart';
+import 'package:kindle_note_parser/settings/settings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +52,9 @@ class _MainState extends State<Main> {
                       icon:
                           const Icon(FluentIcons.sticky_notes_outline_app_icon),
                       label: const Text("My Notes"),
-                      onPressed: () {},
+                      onPressed: () {
+                        // Navigator.push(context, Notes.route());
+                      },
                     ),
                     CommandBarButton(
                       icon: const Icon(FluentIcons.settings),
