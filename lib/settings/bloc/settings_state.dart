@@ -1,10 +1,27 @@
 part of 'settings_bloc.dart';
 
-abstract class SettingsState extends Equatable {
-  const SettingsState();
+class SettingsState extends Equatable {
+  const SettingsState({
+    this.kindleDrives = const [],
+    this.selectedDrive = "",
+  });
   
-  @override
-  List<Object> get props => [];
-}
+  final List<String> kindleDrives;
+  final String selectedDrive;
 
-class SettingsInitial extends SettingsState {}
+  @override
+  List<Object> get props => [
+    kindleDrives,
+    selectedDrive,
+  ];
+
+  SettingsState copyWith({
+    List<String>? kindleDrives,
+    String? selectedDrive,
+  }) {
+    return SettingsState(
+      kindleDrives: kindleDrives ?? this.kindleDrives,
+      selectedDrive: selectedDrive ?? this.selectedDrive,
+    );
+  }
+}

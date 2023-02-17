@@ -2,13 +2,22 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' hide ListTile, Colors;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kindle_note_parser/settings/bloc/settings_bloc.dart';
+import 'package:kindle_repository/kindle_repository.dart';
 
 class SettingsPage extends StatelessWidget {
-const SettingsPage({ Key? key }) : super(key: key);
+const SettingsPage({Key? key, required KindleRepository kindleRepository}) : 
+  _kindleRepository = kindleRepository, 
+  super(key: key);
+
+  final KindleRepository _kindleRepository;
 
   @override
   Widget build(BuildContext context){
-    return BlocProvider(create: (context) => SettingsBloc(),
+    return BlocProvider(create: (context) { 
+      SettingsBloc bloc = SettingsBloc(_kindleRepository);
+      bloc.add(SettingsInit());
+      return bloc;
+    },
     child: const Settings());
   }
 }
@@ -25,46 +34,56 @@ class Settings extends StatelessWidget {
           children: [
             SizedBox(
               width: 300,
-              child: ListView(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    child: Text("Detected Kindle Devices", style: Theme.of(context).textTheme.titleLarge)),
-                  ListTile.selectable(
-                    title: const Text("Settings, first column"),
-                    // subtitle: Text("Configure the app"),
-                    onPressed: () {
-                    },
-                  ),
-                  ListTile.selectable(
-                    title: const Text("Settings, first column"),
-                    // subtitle: Text("Configure the app"),
-                    onPressed: () {
-                    },
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 20),
-                    child: Button(
-                      child: const Text("Sync notes"),
+              child: BlocBuilder<SettingsBloc, SettingsState>(builder: (context, state) {
+                return ListView(
+                  children: 
+                  <Widget>[
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      child: Text("Detected Kindle Devices", style: Theme.of(context).textTheme.titleLarge)),
+                  ] +
+                  state.kindleDrives.map((drive) {
+                    return ListTile.selectable(
+                      title: Text("$drive KINDLE"),
+                      selected: state.selectedDrive == drive,
                       onPressed: () {
-                        // BlocProvider.of<SettingsBloc>(context).add(SettingsSyncNotes());
-                        context.read<SettingsBloc>().add(SettingsSyncNotes());
+                        context.read<SettingsBloc>().add(SettingsKindleSelected(kindleDrive: drive));
                       },
+                    );
+                  }).toList() +
+                  [
+                    Container(
+                      margin: const EdgeInsets.only(top: 20),
+                      child: Button(
+                        child: const Text("Refresh devices"),
+                        onPressed: () {
+                          context.read<SettingsBloc>().add(SettingsInit());
+                        },
+                      ),
                     ),
-                  ),
-                ]
-              )
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      child: Button(
+                        child: const Text("Sync notes"),
+                        onPressed: () {
+                          context.read<SettingsBloc>().add(SettingsSyncNotes());
+                        },
+                      ),
+                    ),
+                  ]
+                );
+              }),
             ),
-            Expanded(
-              child: ListView(
-                children: [
-                  ListTile(
-                    title: Text("Settings, second column"),
-                    subtitle: Text("Configure the app"),
-                  ),
-                ]
-              )
-            ),
+            // Expanded(
+            //   child: ListView(
+            //     children: [
+            //       ListTile(
+            //         title: Text("Settings, second column"),
+            //         subtitle: Text("Configure the app"),
+            //       ),
+            //     ]
+            //   )
+            // ),
           ]
         )
       )

@@ -1,31 +1,36 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_libserialport/flutter_libserialport.dart';
+import 'package:kindle_repository/kindle_repository.dart';
+import 'package:kindle_repository/models/models.dart';
 
 part 'settings_event.dart';
 part 'settings_state.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
-  SettingsBloc() : super(SettingsInitial()) {
-    on<SettingsEvent>((event, emit) {
-      // TODO: implement event handler
-    });
+  final KindleRepository _kindleRepository;
+
+  SettingsBloc(KindleRepository kindleRepository) : 
+    _kindleRepository = kindleRepository, 
+    super(const SettingsState()) {
 
     on<SettingsInit>((event, emit) {
-      
+      List<String> kindles = _kindleRepository.getKindles();
+      emit(state.copyWith(kindleDrives: kindles));
     });
 
-    on<SettingsSyncNotes>((event, emit) {
-      List<String> ports = SerialPort.availablePorts;
-      for (String port in ports) {
-        SerialPort temp = SerialPort(port);
-        // print(temp.vendorId);
-        // print(temp.serialNumber);
-        // print(temp.productName);
-        // print(temp.description);
-        // print(temp.manufacturer);
-        // print(temp.productId);
-        temp.dispose();
+    on<SettingsKindleSelected>((event, emit) {
+      emit(
+        state.copyWith(
+          selectedDrive: event.kindleDrive
+        )
+      );
+    });
+
+    on<SettingsSyncNotes>((event, emit) async {
+      if (state.selectedDrive.isNotEmpty) {
+        List<String> notes = await _kindleRepository.getNotesFromFile(state.selectedDrive);
+        Map<String, List<Note>> parsedNotes = _kindleRepository.parseNotes(notes);
+        _kindleRepository.storeNotes(parsedNotes);
       }
     });
   }

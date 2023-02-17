@@ -2,13 +2,15 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:kindle_note_parser/notes/notes.dart';
 import 'package:kindle_note_parser/settings/settings.dart';
+import 'package:kindle_repository/kindle_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
   WindowOptions options = const WindowOptions(
-      size: Size(800, 600),
+      size: Size(1200, 700),
       title: "Kindle Note Parser",
       backgroundColor: Colors.transparent,
       titleBarStyle: TitleBarStyle.normal);
@@ -18,49 +20,64 @@ void main() async {
     await windowManager.focus();
   });
 
-  runApp(const Main());
+  KindleRepository kindleRepository = KindleRepository();
+  await kindleRepository.initStorage();
+  runApp(Main(kindleRepository: kindleRepository));
 }
 
 class Main extends StatefulWidget {
-  const Main({Key? key}) : super(key: key);
+  Main({Key? key, required KindleRepository kindleRepository}) : _kindleRepository = kindleRepository, super(key: key);
+
+  final KindleRepository _kindleRepository;
+  int selectedPane = 0;
 
   @override
-  MainState createState() => MainState();
+  _MainState createState() => _MainState();
 }
 
-class MainState extends State<Main> {
+class _MainState extends State<Main> {
   @override
   Widget build(BuildContext context) {
-    return FluentApp(
-        theme: ThemeData(
-          brightness: Brightness.light,
-          accentColor: Colors.blue,
-          scaffoldBackgroundColor: Colors.white,
-          visualDensity: VisualDensity.compact,
-        ),
-        themeMode: ThemeMode.light,
-        title: "Kindle Note Parser",
-        home: NavigationView(
-          pane: NavigationPane(
-            selected: 1,
-            displayMode: PaneDisplayMode.top,
-            onChanged: (value) {
-              print(value);
-            },
-            items: [
-              PaneItem(
-                icon: const Icon(FluentIcons.sticky_notes_outline_app_icon),
-                body: const Text("My Notes"),
-                onTap: () {
-                }),
-              PaneItem(
-                icon: const Icon(FluentIcons.settings),
-                body: const SettingsPage(),
-                onTap: () {
-                  // Navigator.of(context).push(Settings.route());
-                })
-            ]
+    return RepositoryProvider.value(
+      value: widget._kindleRepository,
+      child: FluentApp(
+          theme: ThemeData(
+            brightness: Brightness.light,
+            accentColor: Colors.blue,
+            scaffoldBackgroundColor: Colors.white,
+            visualDensity: VisualDensity.compact,
           ),
-        ));
+          themeMode: ThemeMode.light,
+          title: "Kindle Note Parser",
+          home: NavigationView(
+            pane: NavigationPane(
+              selected: widget.selectedPane,
+              displayMode: PaneDisplayMode.top,
+              items: [
+                PaneItem(
+                  icon: const Icon(FluentIcons.sticky_notes_outline_app_icon),
+                  title: const Text("My Notes"),
+                  body: NotesPage(kindleRepository: widget._kindleRepository,),
+                  onTap: () {
+                    setState(() {
+                      widget.selectedPane = 0;
+                    });
+                  },
+                  ),
+                PaneItem(
+                  icon: const Icon(FluentIcons.settings),
+                  title: const Text("Settings"),
+                  body: SettingsPage(kindleRepository: widget._kindleRepository),
+                  onTap: () {
+                    setState(() {
+                      widget.selectedPane = 1;
+                    });
+                  }
+                )
+              ]
+            ),
+          )
+          ),
+    );
   }
 }
