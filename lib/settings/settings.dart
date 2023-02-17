@@ -1,5 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/material.dart' hide ListTile, Colors;
+import 'package:flutter/material.dart' hide ListTile, Colors, FilledButton;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kindle_note_parser/settings/bloc/settings_bloc.dart';
 import 'package:kindle_repository/kindle_repository.dart';
@@ -29,7 +29,7 @@ class Settings extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScaffoldPage(
       content: Container(
-        padding: const EdgeInsets.all(30),
+        padding: const EdgeInsets.only(left: 100),
         child: Row(
           children: [
             SizedBox(
@@ -63,7 +63,7 @@ class Settings extends StatelessWidget {
                     ),
                     Container(
                       margin: const EdgeInsets.only(top: 10),
-                      child: Button(
+                      child: FilledButton(
                         child: const Text("Sync notes"),
                         onPressed: () {
                           context.read<SettingsBloc>().add(SettingsSyncNotes());
