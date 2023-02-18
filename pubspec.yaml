@@ -45,6 +45,7 @@ dependencies:
   window_manager: ^0.3.0
   equatable: ^2.0.5
   json_annotation: ^4.8.0
+  build_runner: ^2.3.3
 
 dev_dependencies:
   flutter_test:

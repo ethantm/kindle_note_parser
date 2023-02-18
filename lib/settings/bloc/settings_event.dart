@@ -10,11 +10,11 @@ abstract class SettingsEvent extends Equatable {
 class SettingsInit extends SettingsEvent {}
 
 class SettingsKindleSelected extends SettingsEvent {
-  const SettingsKindleSelected({
-    required this.kindleDrive
-  });
+  const SettingsKindleSelected({required this.kindleDrive});
 
   final String kindleDrive;
 }
 
 class SettingsSyncNotes extends SettingsEvent {}
+
+class SettingsSyncSuccessToggle extends SettingsEvent {}

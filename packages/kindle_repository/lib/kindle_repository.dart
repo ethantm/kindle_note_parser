@@ -21,11 +21,15 @@ class KindleRepository {
   void storeNotes(Map<String, List<Note>> notes) {
     for (var book in notes.keys) {
       Note note = notes[book]![0];
+
+      if (booksBox.containsKey(book)) {
+        if (booksBox.get(book).notes.length == notes[book]!.length) {
+          continue;
+        }
+      }
+
       Book temp = Book(
-        title: note.bookTitle, 
-        author: note.bookAuthor, 
-        notes: notes[book]!
-      );
+          title: note.bookTitle, author: note.bookAuthor, notes: notes[book]!);
 
       booksBox.put(note.bookTitle, temp);
     }
@@ -41,7 +45,8 @@ class KindleRepository {
   }
 
   List<String> getKindles() {
-    ProcessResult process = Process.runSync("wmic", ["logicaldisk", "get", "Name", ",VolumeName"]);
+    ProcessResult process =
+        Process.runSync("wmic", ["logicaldisk", "get", "Name", ",VolumeName"]);
     String out = process.stdout as String;
     List<String> outList = out.split("\r\n");
 
@@ -61,8 +66,7 @@ class KindleRepository {
     if (await notes.exists()) {
       List<String> notesList = await notes.readAsLines();
       return notesList;
-    }
-    else {
+    } else {
       throw Exception("Notes file not found");
     }
   }
@@ -82,12 +86,10 @@ class KindleRepository {
 
         if (books.containsKey(parsedNote.bookTitle)) {
           books[parsedNote.bookTitle]!.add(parsedNote);
-        }
-        else {
+        } else {
           books[parsedNote.bookTitle] = [parsedNote];
         }
-      }
-      else {
+      } else {
         note.add(line);
       }
     }
@@ -107,18 +109,16 @@ class KindleRepository {
     List<String> line2 = [];
     if (rawNote[1].contains("Location")) {
       line2 = rawNote[1].split("Location");
-    }
-    else {
+    } else {
       line2 = rawNote[1].split("page");
     }
 
     String location = line2[1].split("|")[0].trim();
 
     return Note(
-      bookTitle: bookTitle,
-      bookAuthor: bookAuthor,
-      location: location,
-      text: rawNote[3]
-    );
+        bookTitle: bookTitle,
+        bookAuthor: bookAuthor,
+        location: location,
+        text: rawNote[3]);
   }
 }
