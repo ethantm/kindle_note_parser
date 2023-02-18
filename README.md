@@ -2,6 +2,6 @@
 
 Flutter windows app for parsing and browsing kindle highlights from uploaded documents. The Kindle Note Parser reads My Clippings.txt
 
-![](screenshot1.png)
+![List of notes in windows app](screenshot1.PNG)
 
-![](screenshot2.png)
+![List of detected kindle devices](screenshot2.PNG)
