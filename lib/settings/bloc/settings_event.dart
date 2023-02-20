@@ -18,3 +18,15 @@ class SettingsKindleSelected extends SettingsEvent {
 class SettingsSyncNotes extends SettingsEvent {}
 
 class SettingsSyncSuccessToggle extends SettingsEvent {}
+
+class SettingsToggleBook extends SettingsEvent {
+  const SettingsToggleBook({required this.book});
+
+  final String book;
+}
+
+class SettingsExportBooks extends SettingsEvent {
+  const SettingsExportBooks({required this.books});
+
+  final List<String> books;
+}

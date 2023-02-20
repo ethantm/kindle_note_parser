@@ -2,6 +2,9 @@ library kindle_repository;
 
 import 'package:kindle_repository/models/models.dart';
 import 'package:hive/hive.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter/material.dart';
 import 'dart:io';
 
 class KindleRepository {
@@ -33,6 +36,22 @@ class KindleRepository {
 
       booksBox.put(note.bookTitle, temp);
     }
+  }
+
+  List<String> getBooksList() {
+    List<String> books = [];
+    for (String key in booksBox.keys) {
+      books.add(key);
+    }
+    return books;
+  }
+
+  List<Book> getBooksFromList(List<String> booksList) {
+    List<Book> books = [];
+    for (String bookTitle in booksList) {
+      books.add(booksBox.get(bookTitle));
+    }
+    return books;
   }
 
   Map<String, List<Note>> getBooks() {
@@ -120,5 +139,41 @@ class KindleRepository {
         bookAuthor: bookAuthor,
         location: location,
         text: rawNote[3]);
+  }
+
+  Future<void> exportPdfBook(Book books) async {
+    final pw.Document pdf = pw.Document();
+
+    pw.Page page = pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.ListView(
+            children: <pw.Widget>[
+                  pw.Text(books.title, style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text(books.author),
+                ] +
+                books.notes.map((note) {
+                  return pw.Container(
+                    margin: const pw.EdgeInsets.only(bottom: 20),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: <pw.Widget>[
+                        pw.Text("Location ${note.location}",
+                            style: const pw.TextStyle(font: fontSize: 15)),
+                        pw.Text(
+                            "Note ${books.notes.indexOf(note)} of ${books.notes.length}",
+                            style: const pw.TextStyle(fontSize: 15)),
+                        pw.Text(note.text),
+                      ],
+                    ),
+                  );
+                }).toList(),
+          );
+        });
+
+    pdf.addPage(page);
+
+    final File file = File("${books.title}.pdf");
+    await file.writeAsBytes(await pdf.save());
   }
 }
