@@ -41,6 +41,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       emit(state.copyWith(synced: !state.synced));
     });
 
+    on<SettingsExportSuccessToggle>((event, emit) {
+      emit(state.copyWith(exported: !state.exported));
+    });
+
     on<SettingsToggleBook>(((event, emit) {
       List<String> newSelectedBooks = List.from(state.selectedBooks);
 
@@ -55,8 +59,18 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     on<SettingsExportBooks>((event, emit) async {
       List<String> booksList = event.books;
+
+      if (booksList.isEmpty) {
+        return;
+      }
+
       List<Book> books = _kindleRepository.getBooksFromList(booksList);
-      await _kindleRepository.exportPdfBook(books.first);
+
+      for (Book book in books) {
+        await _kindleRepository.exportPdfBook(book, "./book_notes");
+      }
+
+      emit(state.copyWith(exported: true));
     });
   }
 }

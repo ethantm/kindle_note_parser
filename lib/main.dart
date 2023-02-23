@@ -41,6 +41,7 @@ class _MainState extends State<Main> {
     return RepositoryProvider.value(
       value: widget._kindleRepository,
       child: FluentApp(
+        debugShowCheckedModeBanner: false,
           theme: ThemeData(
             brightness: Brightness.light,
             accentColor: Colors.blue,

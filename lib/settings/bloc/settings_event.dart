@@ -19,6 +19,8 @@ class SettingsSyncNotes extends SettingsEvent {}
 
 class SettingsSyncSuccessToggle extends SettingsEvent {}
 
+class SettingsExportSuccessToggle extends SettingsEvent {}
+
 class SettingsToggleBook extends SettingsEvent {
   const SettingsToggleBook({required this.book});
 

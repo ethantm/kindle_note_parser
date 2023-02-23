@@ -1,5 +1,6 @@
 library kindle_repository;
 
+import 'package:flutter/services.dart';
 import 'package:kindle_repository/models/models.dart';
 import 'package:hive/hive.dart';
 import 'package:pdf/pdf.dart';
@@ -141,39 +142,61 @@ class KindleRepository {
         text: rawNote[3]);
   }
 
-  Future<void> exportPdfBook(Book books) async {
-    final pw.Document pdf = pw.Document();
+  Future<void> exportPdfBook(Book book, String path) async {
+    final theme = pw.ThemeData.withFont(
+      base: pw.Font.ttf(await rootBundle.load("assets/OpenSans/OpenSans-Regular.ttf")),
+      bold: pw.Font.ttf(await rootBundle.load("assets/OpenSans/OpenSans-Bold.ttf")),
+      italic: pw.Font.ttf(await rootBundle.load("assets/OpenSans/OpenSans-Italic.ttf")),
+      boldItalic: pw.Font.ttf(await rootBundle.load("assets/OpenSans/OpenSans-BoldItalic.ttf")),
+    );
 
-    pw.Page page = pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        build: (pw.Context context) {
-          return pw.ListView(
-            children: <pw.Widget>[
-                  pw.Text(books.title, style: const pw.TextStyle(fontSize: 20)),
-                  pw.Text(books.author),
-                ] +
-                books.notes.map((note) {
-                  return pw.Container(
-                    margin: const pw.EdgeInsets.only(bottom: 20),
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: <pw.Widget>[
-                        pw.Text("Location ${note.location}",
-                            style: const pw.TextStyle(font: fontSize: 15)),
-                        pw.Text(
-                            "Note ${books.notes.indexOf(note)} of ${books.notes.length}",
-                            style: const pw.TextStyle(fontSize: 15)),
-                        pw.Text(note.text),
-                      ],
-                    ),
-                  );
-                }).toList(),
+    final pw.Document pdf = pw.Document(
+      theme: theme
+    );
+
+    pw.MultiPage page = pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
+      build:(context) {
+        return <pw.Widget>[
+          pw.Header(
+            level: 0,
+            child: pw.Column(
+              children: [
+                pw.Text(book.title, style: const pw.TextStyle(fontSize: 30)),
+                pw.Text(book.author, style: const pw.TextStyle(fontSize: 20)),
+              ],
+            ),
+          ),
+          pw.SizedBox(height: 20),
+        ] +
+        book.notes.map((note) {
+          return pw.Container(
+            margin: const pw.EdgeInsets.only(bottom: 20),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text("Location ${note.location}", style: const pw.TextStyle(fontSize: 10)),
+                    pw.Text(
+                        "Note ${book.notes.indexOf(note) + 1} of ${book.notes.length}", 
+                        style: const pw.TextStyle(fontSize: 10)),
+                  ],
+                ),
+                pw.SizedBox(height: 10),
+                pw.Text(note.text),
+              ],
+            ),
           );
-        });
+        }).toList();
+      },
+    );
 
     pdf.addPage(page);
 
-    final File file = File("${books.title}.pdf");
+    String title = book.title.replaceAll(RegExp(r"\W"), "_");
+    final File file = File("$path/$title.pdf");
     await file.writeAsBytes(await pdf.save());
   }
 }
