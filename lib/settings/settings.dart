@@ -32,32 +32,28 @@ class Settings extends StatelessWidget {
       listener: (context, state) {
         if (state.synced) {
           showSnackbar(
-            context,
-            InfoBar(
-              title: const Text("Notes successfully synced!"),
-              severity: InfoBarSeverity.success,
-              onClose: () {
-                context
-                    .read<SettingsBloc>()
-                    .add(SettingsSyncSuccessToggle());
-              },
-            )
-          );
+              context,
+              InfoBar(
+                title: const Text("Notes successfully synced!"),
+                severity: InfoBarSeverity.success,
+                onClose: () {
+                  context.read<SettingsBloc>().add(SettingsSyncSuccessToggle());
+                },
+              ));
         }
 
-        if (state.synced) {
+        if (state.exported) {
           showSnackbar(
-            context,
-            InfoBar(
-              title: const Text("Notes successfully exported!"),
-              severity: InfoBarSeverity.success,
-              onClose: () {
-                context
-                    .read<SettingsBloc>()
-                    .add(SettingsExportSuccessToggle());
-              },
-            )
-          );
+              context,
+              InfoBar(
+                title: const Text("Notes successfully exported!"),
+                severity: InfoBarSeverity.success,
+                onClose: () {
+                  context
+                      .read<SettingsBloc>()
+                      .add(SettingsExportSuccessToggle());
+                },
+              ));
         }
       },
       child: ScaffoldPage(

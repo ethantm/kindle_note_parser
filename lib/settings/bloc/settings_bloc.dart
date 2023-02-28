@@ -24,17 +24,18 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     });
 
     on<SettingsSyncNotes>((event, emit) async {
-      if (state.selectedDrive.isNotEmpty) {
-        List<String> notes =
-            await _kindleRepository.getNotesFromFile(state.selectedDrive);
-
-        Map<String, List<Note>> parsedNotes =
-            _kindleRepository.parseNotes(notes);
-
-        _kindleRepository.storeNotes(parsedNotes);
-
-        emit(state.copyWith(synced: true));
+      if (state.selectedDrive.isEmpty) {
+        return;
       }
+
+      List<String> notes =
+          await _kindleRepository.getNotesFromFile(state.selectedDrive);
+
+      Map<String, List<Note>> parsedNotes = _kindleRepository.parseNotes(notes);
+
+      _kindleRepository.storeNotes(parsedNotes);
+
+      emit(state.copyWith(synced: true));
     });
 
     on<SettingsSyncSuccessToggle>((event, emit) {
@@ -64,13 +65,24 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         return;
       }
 
+      String directory;
+      try {
+        directory = await _kindleRepository.getDirectory();
+      } catch (error) {
+        return;
+      }
+
       List<Book> books = _kindleRepository.getBooksFromList(booksList);
 
       for (Book book in books) {
-        await _kindleRepository.exportPdfBook(book, "./book_notes");
+        try {
+          await _kindleRepository.exportPdfBook(book, directory);
+        } catch (error) {
+          return;
+        }
       }
 
-      emit(state.copyWith(exported: true));
+      emit(state.copyWith(exported: true, selectedBooks: []));
     });
   }
 }
