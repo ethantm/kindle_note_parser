@@ -10,11 +10,13 @@ environment:
 dependencies:
   build_runner: ^2.3.3
   equatable: ^2.0.5
+  file_picker: ^5.2.5
   flutter:
     sdk: flutter
   hive: ^2.2.3
   hive_generator: ^2.0.0
   json_serializable: ^6.6.1
+  pdf: ^3.9.0
 
 dev_dependencies:
   flutter_test:
@@ -57,3 +59,9 @@ flutter:
   #
   # For details regarding fonts in packages, see
   # https://flutter.dev/custom-fonts/#from-packages
+
+  assets:
+    - assets/OpenSans/OpenSans-Regular.ttf
+    - assets/OpenSans/OpenSans-Bold.ttf
+    - assets/OpenSans/OpenSans-Italic.ttf
+    - assets/OpenSans/OpenSans-BoldItalic.ttf

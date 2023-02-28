@@ -14,7 +14,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         super(const SettingsState()) {
     on<SettingsInit>((event, emit) {
       List<String> kindles = _kindleRepository.getKindles();
-      emit(state.copyWith(kindleDrives: kindles));
+      List<String> booksList = _kindleRepository.getBooksList();
+
+      emit(state.copyWith(kindleDrives: kindles, booksList: booksList));
     });
 
     on<SettingsKindleSelected>((event, emit) {
@@ -22,21 +24,65 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     });
 
     on<SettingsSyncNotes>((event, emit) async {
-      if (state.selectedDrive.isNotEmpty) {
-        List<String> notes =
-            await _kindleRepository.getNotesFromFile(state.selectedDrive);
-
-        Map<String, List<Note>> parsedNotes =
-            _kindleRepository.parseNotes(notes);
-
-        _kindleRepository.storeNotes(parsedNotes);
-
-        emit(state.copyWith(synced: true));
+      if (state.selectedDrive.isEmpty) {
+        return;
       }
+
+      List<String> notes =
+          await _kindleRepository.getNotesFromFile(state.selectedDrive);
+
+      Map<String, List<Note>> parsedNotes = _kindleRepository.parseNotes(notes);
+
+      _kindleRepository.storeNotes(parsedNotes);
+
+      emit(state.copyWith(synced: true));
     });
 
     on<SettingsSyncSuccessToggle>((event, emit) {
       emit(state.copyWith(synced: !state.synced));
+    });
+
+    on<SettingsExportSuccessToggle>((event, emit) {
+      emit(state.copyWith(exported: !state.exported));
+    });
+
+    on<SettingsToggleBook>(((event, emit) {
+      List<String> newSelectedBooks = List.from(state.selectedBooks);
+
+      if (newSelectedBooks.contains(event.book)) {
+        newSelectedBooks.remove(event.book);
+      } else {
+        newSelectedBooks.add(event.book);
+      }
+
+      emit(state.copyWith(selectedBooks: newSelectedBooks));
+    }));
+
+    on<SettingsExportBooks>((event, emit) async {
+      List<String> booksList = event.books;
+
+      if (booksList.isEmpty) {
+        return;
+      }
+
+      String directory;
+      try {
+        directory = await _kindleRepository.getDirectory();
+      } catch (error) {
+        return;
+      }
+
+      List<Book> books = _kindleRepository.getBooksFromList(booksList);
+
+      for (Book book in books) {
+        try {
+          await _kindleRepository.exportPdfBook(book, directory);
+        } catch (error) {
+          return;
+        }
+      }
+
+      emit(state.copyWith(exported: true, selectedBooks: []));
     });
   }
 }
