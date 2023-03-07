@@ -29,5 +29,22 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
       emit(state.copyWith(
           selectedBook: event.bookTitle, selectedNotes: event.notes));
     });
+
+    on<NotesSearch>((event, emit) {
+      List<Note> newNotes = [];
+
+      if (event.search.isEmpty) {
+        emit(state.copyWith(selectedNotes: state.books[state.selectedBook]!));
+        return;
+      }
+
+      for (Note note in state.selectedNotes) {
+        if (note.text.toLowerCase().contains(event.search.toLowerCase())) {
+          newNotes.add(note);
+        }
+      }
+
+      emit(state.copyWith(selectedNotes: newNotes));
+    });
   }
 }

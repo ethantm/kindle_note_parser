@@ -70,11 +70,22 @@ class Notes extends StatelessWidget {
                             margin: const EdgeInsets.only(bottom: 20),
                             child: Text(
                                 state.selectedBook.isNotEmpty
-                                    ? state.selectedNotes.first.bookAuthor
+                                    ? state.books[state.selectedBook]!.first
+                                        .bookAuthor
                                     : "",
                                 style:
                                     Theme.of(context).textTheme.headlineSmall),
                           ),
+                          Container(
+                              margin: const EdgeInsets.only(bottom: 20),
+                              child: TextBox(
+                                placeholder: "Search notes",
+                                onChanged: (value) {
+                                  context
+                                      .read<NotesBloc>()
+                                      .add(NotesSearch(search: value));
+                                },
+                              )),
                         ] +
                         state.selectedNotes.map((note) {
                           return Container(

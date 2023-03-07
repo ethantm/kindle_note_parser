@@ -15,3 +15,9 @@ class NotesBookSelected extends NotesEvent {
   final String bookTitle;
   final List<Note> notes;
 }
+
+class NotesSearch extends NotesEvent {
+  const NotesSearch({required this.search});
+
+  final String search;
+}

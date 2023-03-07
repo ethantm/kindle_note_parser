@@ -69,6 +69,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       try {
         directory = await _kindleRepository.getDirectory();
       } catch (error) {
+        emit(state.copyWith(
+          error: "There was an error getting the directory",
+        ));
         return;
       }
 
@@ -83,6 +86,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       }
 
       emit(state.copyWith(exported: true, selectedBooks: []));
+    });
+
+    on<SettingsClearError>((event, emit) {
+      emit(state.copyWith(error: ""));
     });
   }
 }

@@ -30,6 +30,17 @@ class Settings extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<SettingsBloc, SettingsState>(
       listener: (context, state) {
+        if (state.error.isNotEmpty) {
+          showSnackbar(
+              context,
+              InfoBar(
+                title: Text(state.error),
+                severity: InfoBarSeverity.error,
+              ), onDismiss: () {
+            context.read<SettingsBloc>().add(SettingsClearError());
+          });
+        }
+
         if (state.synced) {
           showSnackbar(
               context,
